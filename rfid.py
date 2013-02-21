@@ -4,7 +4,7 @@
 # pi@raspberrypi: sudo apt-get install sqlite3
 # pi@raspberrypi: sqlite3 DoorDatabase.db
 # sqlite>CREATE TABLE RFID( name TEXT, card TEXT, date NUMERIC, lastentry TEXT);
-# sqlite>CREATE TABLE Rejects( card TEXT, whenrejected TEXT);  
+# sqlite>CREATE TABLE Rejects( rejectedcard TEXT, whenrejected TEXT);  
 # sqlite>INSERT INTO RFID values("illwill", "1212121212", date(), "0");
 # sqlite>.exit
 ####################################################################          
