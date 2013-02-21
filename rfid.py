@@ -1,4 +1,11 @@
-#!/usr/bin/env python          
+#!/usr/bin/env python
+# CREATE YOUR DATABASE AFTER YOU SCAN YOUR CARD AND GET YOUR TAG ID
+# pi@raspberrypi: sudo apt-get install sqlite3
+# pi@raspberrypi: sqlite3 DoorDatabase.db
+# sqlite>CREATE TABLE RFID( name TEXT, card NUMERIC, date NUMERIC); 
+# sqlite>INSERT INTO RFID values("illwill", 1212121212, date());
+# sqlite>.exit
+####################################################################          
 import serial, time, sys
 import sqlite3 as lite
 import RPi.GPIO as GPIO
@@ -13,7 +20,7 @@ GPIO.setup(BLUE_LED, GPIO.OUT)
 GPIO.setup(GREEN_LED, GPIO.OUT)
 GPIO.setup(RED_LED, GPIO.OUT)
 
-con = lite.connect('/home/pi/raspi_gtalk_robot/DoorDatabase.db')
+con = lite.connect('DoorDatabase.db')
 thetime = time.strftime("%H:%M:%S", time.localtime())
 
 rfid_reader = "/dev/ttyUSB0"
