@@ -1,9 +1,11 @@
 #!/usr/bin/env python
+# RFPiD.py - Scan RFID Tags with Your Pi - will@nesit.org
 # CREATE YOUR DATABASE AFTER YOU SCAN YOUR CARD AND GET YOUR TAG ID
 # pi@raspberrypi: sudo apt-get install sqlite3
 # pi@raspberrypi: sqlite3 DoorDatabase.db
-# sqlite>CREATE TABLE RFID( name TEXT, card NUMERIC, date NUMERIC); 
-# sqlite>INSERT INTO RFID values("illwill", 1212121212, date());
+# sqlite>CREATE TABLE RFID( name TEXT, card TEXT, date NUMERIC, lastentry TEXT);
+# sqlite>CREATE TABLE Rejects( card TEXT, whenrejected TEXT);  
+# sqlite>INSERT INTO RFID values("illwill", "1212121212", date(), "0");
 # sqlite>.exit
 ####################################################################          
 import serial, time, sys
@@ -21,7 +23,7 @@ GPIO.setup(GREEN_LED, GPIO.OUT)
 GPIO.setup(RED_LED, GPIO.OUT)
 
 con = lite.connect('DoorDatabase.db')
-thetime = time.strftime("%H:%M:%S", time.localtime())
+
 
 rfid_reader = "/dev/ttyUSB0"
 ser = serial.Serial(rfid_reader, timeout=1)
@@ -30,6 +32,7 @@ print "Connected to RFID reader on:", rfid_reader
 GPIO.output(BLUE_LED, True)           # Turn on Blue light special
 try:
  while 1:                             # loop forever until a tag is read
+  thetime = time.strftime("%Y-%m-%d %a %H:%M:%S", time.localtime()) # get current time
   ser.flushInput()                    # flush any extra data from the serial port
   rfid_data = ser.readline().strip()  # read the rfid data
 			
@@ -48,9 +51,12 @@ try:
     GPIO.output(BLUE_LED, True)       #turn on blue light
     print "Card not found in DB."
     print "UNAUTHORIZED CARD! [",rfid_data,"] scanned at front door @ ",thetime
+    cur.execute("INSERT INTO Rejects (rejectedcard, whenrejected) VALUES(?,?)", (rfid_data, thetime))
+    con.commit()
+    cur.close() 
     continue
    else:
-    GPIO.output(TRANSISTOR, True)     # Trigger the Transistor to open the doorstrike
+    GPIO.output(TRANSISTOR, True)     #trigger the Transistor to open the door strike
     GPIO.output(BLUE_LED, False)      #turn off blue light
     GPIO.output(GREEN_LED, True)      #turn on green led
     time.sleep(2);                    #take a nap for 2 seconds
@@ -59,6 +65,10 @@ try:
     GPIO.output(TRANSISTOR, False)    #trigger the Transistor to close the doorstrike
     print "Card found in DB."
     print result[0],"entered front door @",thetime
+    cur.execute("UPDATE RFID SET lastentry=(?) WHERE card=(?)",  (thetime, rfid_data))
+    con.commit()
+    cur.close() 
+
 	
 except KeyboardInterrupt:             # if ctrl-c'd , cleanup your mess and exit
         GPIO.cleanup()
