@@ -55,6 +55,7 @@ try:
     con.commit()
     cur.close() 
     continue
+	
    else:
     GPIO.output(TRANSISTOR, True)     #trigger the Transistor to open the door strike
     GPIO.output(BLUE_LED, False)      #turn off blue light
@@ -68,8 +69,11 @@ try:
     cur.execute("UPDATE RFID SET lastentry=(?) WHERE card=(?)",  (thetime, rfid_data))
     con.commit()
     cur.close() 
-
 	
 except KeyboardInterrupt:             # if ctrl-c'd , cleanup your mess and exit
         GPIO.cleanup()
         ser.close()
+		
+except:
+    print "Unexpected error:", sys.exc_info()[0]
+    raise
