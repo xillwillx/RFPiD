@@ -71,9 +71,12 @@ try:
     cur.close() 
 	
 except KeyboardInterrupt:             # if ctrl-c'd , cleanup your mess and exit
-        GPIO.cleanup()
-        ser.close()
+        print "Caught interrupt, exiting..."
 		
 except:
     print "Unexpected error:", sys.exc_info()[0]
     raise
+	
+finally:
+        GPIO.cleanup()
+        ser.close()
